@@ -1,0 +1,8 @@
+# Google Generative AI Library
+google-generativeai>=0.3.0
+
+# Sentence Transformers for embeddings
+sentence-transformers>=2.2.0
+
+# Environment variable management (optional but recommended)
+python-dotenv>=1.0.0
