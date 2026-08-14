@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camera Capture with Computer Vision</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+  video, canvas {
+    max-width: 100%;
+    border: 1px solid;
+    margin-top: 10px;
+  }
+  .controls {
+    margin: 10px 0;
+  }
+  button {
+    padding: 10px 15px;
+    margin: 5px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-size: 14px;
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  .loading {
+    color: #0066cc;
+    font-weight: bold;
+  }
+  .setup-info {
+    background-color: #fff3cd;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-size: 12px;
+  }
+  .auth-status {
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-size: 14px;
+  }
+  .auth-status.authenticated {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  .auth-status.not-authenticated {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  .auth-section {
+    margin: 15px 0;
+  }
+</style>
+</head>
+<body>
+
+<h2>Open Camera and Take Picture</h2>
+
+<!-- Setup Info -->
+<div class="setup-info">
+  <strong>Setup Required:</strong> This app uses Google Cloud Vision API with Application Default Credentials (ADC).
+  <br>
+  <strong>To use:</strong> Sign in with your Google account, then ensure your Google Cloud project has Vision API enabled.
+</div>
+
+<!-- Authentication Section -->
+<div class="auth-section">
+  <div class="auth-status not-authenticated" id="authStatus">
+    Not authenticated - Click "Sign in with Google" to continue
+  </div>
+  <div id="g_id_onload"
+       data-client_id="YOUR_CLIENT_ID_HERE"
+       data-callback="handleCredentialResponse">
+  </div>
+  <div class="g_id_signin" data-type="standard"></div>
+  <button id="signOutBtn" style="display:none; background-color: #dc3545;">🚪 Sign Out</button>
+  <div id="credentialInfo" style="display:none; margin-top: 10px; font-size: 12px;"></div>
+</div>
+
+<!-- Live camera preview -->
+<video id="video" autoplay playsinline></video>
+<br>
+
+<!-- Controls -->
+<div class="controls">
+  <button id="captureBtn">📸 Take Picture</button>
+  <button id="downloadBtn" style="display:none;">💾 Save as JPG</button>
+</div>
+
+<!-- Canvas to display captured image -->
+<canvas id="canvas"></canvas>
+
+
+
+<script>
+let accessToken = null;
+let userEmail = null;
+
+// Handle Google Sign-In response
+function handleCredentialResponse(response) {
+    // Get the access token from the response
+    const credential = response.credential;
+    
+    // Decode JWT to get user info
+    const base64Url = credential.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    
+    const userData = JSON.parse(jsonPayload);
+    userEmail = userData.email;
+    
+    // Note: JWT token can be used for authentication, but for Vision API,
+    // we typically need to exchange it for an access token or use backend
+    // Store the JWT credential for backend API calls
+    accessToken = credential;
+    
+    updateAuthStatus(true);
+    console.log('Signed in as:', userEmail);
+    alert('Signed in successfully as ' + userEmail + '\n\nNote: For full Vision API functionality with ADC, you may need to:\n1. Set up a backend service with Application Default Credentials\n2. Or enable Vision API in your Google Cloud project\n3. Configure OAuth consent screen');
+}
+
+// Update authentication status display
+function updateAuthStatus(isAuthenticated) {
+    const authStatus = document.getElementById('authStatus');
+    const signOutBtn = document.getElementById('signOutBtn');
+    const credentialInfo = document.getElementById('credentialInfo');
+    
+    if (isAuthenticated) {
+        authStatus.textContent = '✅ Authenticated as: ' + userEmail;
+        authStatus.classList.remove('not-authenticated');
+        authStatus.classList.add('authenticated');
+        signOutBtn.style.display = 'inline-block';
+        credentialInfo.style.display = 'block';
+        credentialInfo.innerHTML = '<strong>Authenticated with Google Account</strong><br>Ready to use Computer Vision API';
+    } else {
+        authStatus.textContent = 'Not authenticated - Click "Sign in with Google" to continue';
+        authStatus.classList.add('not-authenticated');
+        authStatus.classList.remove('authenticated');
+        signOutBtn.style.display = 'none';
+        credentialInfo.style.display = 'none';
+    }
+}
+
+// Sign out function
+function signOut() {
+    google.accounts.id.disableAutoSelect();
+    accessToken = null;
+    userEmail = null;
+    updateAuthStatus(false);
+    alert('Signed out successfully');
+}
+
+(async function() {
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureBtn = document.getElementById('captureBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const signOutBtn = document.getElementById('signOutBtn');
+    
+    let imageCaptured = false;
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+    } catch (err) {
+        alert('Error accessing camera: ' + err.message);
+        console.error(err);
+        return;
+    }
+
+    // Sign out button handler
+    signOutBtn.addEventListener('click', signOut);
+
+    // Capture image
+    captureBtn.addEventListener('click', () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        downloadBtn.style.display = 'inline-block';
+        imageCaptured = true;
+
+        const imageData = canvas.toDataURL('image/png');
+        console.log('Captured image');
+    });
+
+    // Download image as JPG
+    downloadBtn.addEventListener('click', () => {
+        if (!imageCaptured) {
+            alert('Please capture an image first');
+            return;
+        }
+
+        canvas.toBlob((blob) => {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `capture_${new Date().getTime()}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            console.log('Image saved as JPG');
+        }, 'image/jpeg', 0.9);
+    });
+})();
+
+// Make functions globally available for Google Sign-In
+window.handleCredentialResponse = handleCredentialResponse;
+window.signOut = signOut;
+</script>
+
+</body>
+</html>

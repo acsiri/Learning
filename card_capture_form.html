@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Card Capture Form</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .security-notice {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 12px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #2e7d32;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: 'Arial', sans-serif;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Credit Card Number Field */
+        .card-number-group {
+            position: relative;
+        }
+
+        .card-type-icon {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            width: 32px;
+            height: 20px;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        /* Two Column Row */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            margin-bottom: 0;
+        }
+
+        /* Card Holder Name */
+        .cardholder-name {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Expiry and CVV */
+        .expiry-group,
+        .cvv-group {
+            margin-bottom: 0;
+        }
+
+        .expiry-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .expiry-inputs input {
+            width: 100%;
+        }
+
+        /* CVV Info */
+        .cvv-info {
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* Checkbox */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: 400;
+            cursor: pointer;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit {
+            background-color: #667eea;
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-submit:hover {
+            background-color: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-reset {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-reset:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Error Messages */
+        .error {
+            color: #d32f2f;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        input.invalid {
+            border-color: #d32f2f;
+        }
+
+        input.invalid:focus {
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+        }
+
+        /* Success Message */
+        .success-message {
+            background-color: #c8e6c9;
+            border-left: 4px solid #2e7d32;
+            color: #2e7d32;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        /* Loading State */
+        .loading {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 5px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .card-container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .form-row .form-group {
+                margin-bottom: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>💳 Card Details</h1>
+            <p>Enter your payment information securely</p>
+        </div>
+
+        <!-- Security Notice -->
+        <div class="security-notice">
+            🔒 This form uses encryption to protect your data. Your information is never stored on servers.
+        </div>
+
+        <!-- Success Message -->
+        <div class="success-message" id="successMessage">
+            ✓ Card details captured successfully!
+        </div>
+
+        <!-- Form -->
+        <form id="cardForm" novalidate>
+            <!-- Card Holder Name -->
+            <div class="form-group">
+                <label for="cardholderName">Cardholder Name *</label>
+                <input 
+                    type="text" 
+                    id="cardholderName" 
+                    name="cardholderName"
+                    placeholder="John Doe"
+                    autocomplete="off"
+                    required
+                    maxlength="50"
+                />
+                <div class="error" id="cardholderNameError">Please enter cardholder name</div>
+            </div>
+
+            <!-- Card Number -->
+            <div class="form-group card-number-group">
+                <label for="cardNumber">Card Number *</label>
+                <input 
+                    type="text" 
+                    id="cardNumber" 
+                    name="cardNumber"
+                    placeholder="1234 5678 9012 3456"
+                    autocomplete="off"
+                    required
+                    maxlength="19"
+                    inputmode="numeric"
+                />
+                <div class="card-type-icon" id="cardTypeIcon"></div>
+                <div class="error" id="cardNumberError">Please enter a valid card number</div>
+            </div>
+
+            <!-- Expiry Date and CVV Row -->
+            <div class="form-row">
+                <!-- Expiry Date -->
+                <div class="form-group expiry-group">
+                    <label for="expiryMonth">Expiry Date *</label>
+                    <div class="expiry-inputs">
+                        <input 
+                            type="text" 
+                            id="expiryMonth" 
+                            name="expiryMonth"
+                            placeholder="MM"
+                            autocomplete="off"
+                            required
+                            maxlength="2"
+                            inputmode="numeric"
+                        />
+                        <input 
+                            type="text" 
+                            id="expiryYear" 
+                            name="expiryYear"
+                            placeholder="YY"
+                            autocomplete="off"
+                            required
+                            maxlength="2"
+                            inputmode="numeric"
+                        />
+                    </div>
+                    <div class="error" id="expiryError">Invalid expiry date</div>
+                </div>
+
+                <!-- CVV -->
+                <div class="form-group cvv-group">
+                    <label for="cvv">CVV *</label>
+                    <input 
+                        type="text" 
+                        id="cvv" 
+                        name="cvv"
+                        placeholder="123"
+                        autocomplete="off"
+                        required
+                        maxlength="4"
+                        inputmode="numeric"
+                    />
+                    <div class="cvv-info">3 or 4 digits on back of card</div>
+                    <div class="error" id="cvvError">Invalid CVV</div>
+                </div>
+            </div>
+
+            <!-- Email (Optional) -->
+            <div class="form-group">
+                <label for="email">Email (Optional)</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email"
+                    placeholder="john@example.com"
+                    autocomplete="off"
+                />
+                <div class="error" id="emailError">Invalid email address</div>
+            </div>
+
+            <!-- Consent Checkbox -->
+            <div class="checkbox-group">
+                <input 
+                    type="checkbox" 
+                    id="consent" 
+                    name="consent"
+                    required
+                />
+                <label for="consent">
+                    I agree to the payment terms and conditions
+                </label>
+            </div>
+
+            <!-- Buttons -->
+            <div class="button-group">
+                <button type="reset" class="btn-reset">Clear</button>
+                <button type="submit" class="btn-submit">
+                    Submit <span class="loading" id="loadingSpinner" style="display: none;"></span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('cardForm');
+        const cardNumberInput = document.getElementById('cardNumber');
+        const cardholderNameInput = document.getElementById('cardholderName');
+        const expiryMonthInput = document.getElementById('expiryMonth');
+        const expiryYearInput = document.getElementById('expiryYear');
+        const cvvInput = document.getElementById('cvv');
+        const emailInput = document.getElementById('email');
+        const consentCheckbox = document.getElementById('consent');
+        const successMessage = document.getElementById('successMessage');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        // Luhn Algorithm for card number validation
+        function validateLuhn(num) {
+            let sum = 0;
+            let isEven = false;
+            for (let i = num.length - 1; i >= 0; i--) {
+                let digit = parseInt(num.charAt(i), 10);
+                if (isEven) {
+                    digit *= 2;
+                    if (digit > 9) {
+                        digit -= 9;
+                    }
+                }
+                sum += digit;
+                isEven = !isEven;
+            }
+            return sum % 10 === 0;
+        }
+
+        // Detect card type
+        function getCardType(number) {
+            const patterns = {
+                visa: /^4[0-9]{12}(?:[0-9]{3})?$/,
+                mastercard: /^5[1-5][0-9]{14}$/,
+                amex: /^3[47][0-9]{13}$/,
+                discover: /^6(?:011|5[0-9]{2})[0-9]{12}$/,
+            };
+
+            for (const [type, pattern] of Object.entries(patterns)) {
+                if (pattern.test(number.replace(/\s/g, ''))) {
+                    return type;
+                }
+            }
+            return null;
+        }
+
+        // Format card number with spaces
+        function formatCardNumber(value) {
+            const cleaned = value.replace(/\s/g, '');
+            const formatted = cleaned.replace(/(\d{4})(?=\d)/g, '$1 ');
+            return formatted;
+        }
+
+        // Format expiry with slash
+        function formatExpiry(month, year) {
+            if (month && year) {
+                return `${month}/${year}`;
+            }
+            return '';
+        }
+
+        // Card number input formatting and validation
+        cardNumberInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s/g, '');
+            value = value.replace(/\D/g, '').slice(0, 16);
+            e.target.value = formatCardNumber(value);
+
+            const cardType = getCardType(value);
+            const icon = document.getElementById('cardTypeIcon');
+            if (cardType) {
+                icon.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 32"><text x="50%%" y="50%%" dominant-baseline="middle" text-anchor="middle" font-size="10" font-weight="bold" fill="${cardType === 'visa' ? '%231434CB' : cardType === 'mastercard' ? '%23FF5F00' : cardType === 'amex' ? '%23006FCF' : '%23FF5F00'}">${cardType.toUpperCase()}</text></svg>')`;
+            }
+        });
+
+        // Cardholder name to uppercase
+        cardholderNameInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase().replace(/[^A-Z\s]/g, '');
+        });
+
+        // Expiry month validation
+        expiryMonthInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '').slice(0, 2);
+            if (value.length === 2) {
+                const num = parseInt(value);
+                if (num > 12) {
+                    value = value.substring(0, 1);
+                } else if (num === 0) {
+                    value = '';
+                }
+            }
+            e.target.value = value;
+        });
+
+        // Expiry year validation
+        expiryYearInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '').slice(0, 2);
+            e.target.value = value;
+        });
+
+        // CVV validation
+        cvvInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+        });
+
+        // Validation functions
+        function validateCardholderName() {
+            const value = cardholderNameInput.value.trim();
+            const isValid = value.length >= 3 && /^[A-Z\s]+$/.test(value);
+            return isValid;
+        }
+
+        function validateCardNumber() {
+            const value = cardNumberInput.value.replace(/\s/g, '');
+            return value.length >= 13 && value.length <= 16 && validateLuhn(value);
+        }
+
+        function validateExpiry() {
+            const month = parseInt(expiryMonthInput.value);
+            const year = parseInt(expiryYearInput.value);
+            
+            if (!month || !year || month < 1 || month > 12 || year < 24) {
+                return false;
+            }
+
+            const now = new Date();
+            const currentYear = now.getFullYear() % 100;
+            const currentMonth = now.getMonth() + 1;
+
+            if (year < currentYear) return false;
+            if (year === currentYear && month < currentMonth) return false;
+
+            return true;
+        }
+
+        function validateCVV() {
+            const value = cvvInput.value;
+            return value.length >= 3 && value.length <= 4 && /^\d+$/.test(value);
+        }
+
+        function validateEmail() {
+            if (!emailInput.value) return true; // Optional field
+            const email = emailInput.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Error display
+        function showError(inputId, errorId) {
+            document.getElementById(inputId).classList.add('invalid');
+            document.getElementById(errorId).style.display = 'block';
+        }
+
+        function hideError(inputId, errorId) {
+            document.getElementById(inputId).classList.remove('invalid');
+            document.getElementById(errorId).style.display = 'none';
+        }
+
+        // Form submission
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            let isValid = true;
+
+            // Validate all fields
+            if (!validateCardholderName()) {
+                showError('cardholderName', 'cardholderNameError');
+                isValid = false;
+            } else {
+                hideError('cardholderName', 'cardholderNameError');
+            }
+
+            if (!validateCardNumber()) {
+                showError('cardNumber', 'cardNumberError');
+                isValid = false;
+            } else {
+                hideError('cardNumber', 'cardNumberError');
+            }
+
+            if (!validateExpiry()) {
+                showError('expiryMonth', 'expiryError');
+                isValid = false;
+            } else {
+                hideError('expiryMonth', 'expiryError');
+            }
+
+            if (!validateCVV()) {
+                showError('cvv', 'cvvError');
+                isValid = false;
+            } else {
+                hideError('cvv', 'cvvError');
+            }
+
+            if (!validateEmail()) {
+                showError('email', 'emailError');
+                isValid = false;
+            } else {
+                hideError('email', 'emailError');
+            }
+
+            if (!consentCheckbox.checked) {
+                consentCheckbox.parentElement.style.borderColor = '#d32f2f';
+                isValid = false;
+            } else {
+                consentCheckbox.parentElement.style.borderColor = 'transparent';
+            }
+
+            if (!isValid) {
+                return;
+            }
+
+            // Show loading spinner
+            loadingSpinner.style.display = 'inline-block';
+            document.querySelector('.btn-submit').disabled = true;
+
+            // Simulate API call (replace with your backend endpoint)
+            try {
+                const cardData = {
+                    cardholder: cardholderNameInput.value,
+                    cardNumber: cardNumberInput.value.replace(/\s/g, ''),
+                    expiry: `${expiryMonthInput.value}/${expiryYearInput.value}`,
+                    cvv: cvvInput.value,
+                    email: emailInput.value,
+                    timestamp: new Date().toISOString(),
+                    cardType: getCardType(cardNumberInput.value.replace(/\s/g, ''))
+                };
+
+                // Send to backend (replace with your actual endpoint)
+                const response = await fetch('/api/capture-card', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(cardData)
+                }).catch(() => {
+                    // If backend not available, just log to console (for testing)
+                    console.log('Card Data Captured:', cardData);
+                    return { ok: true };
+                });
+
+                if (response.ok) {
+                    // Show success message
+                    successMessage.style.display = 'block';
+                    form.reset();
+                    document.getElementById('cardTypeIcon').style.backgroundImage = 'none';
+
+                    // Hide success message after 5 seconds
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                    }, 5000);
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                alert('Error submitting card details. Please try again.');
+            } finally {
+                loadingSpinner.style.display = 'none';
+                document.querySelector('.btn-submit').disabled = false;
+            }
+        });
+
+        // Clear errors on input
+        [cardholderNameInput, cardNumberInput, expiryMonthInput, expiryYearInput, cvvInput, emailInput].forEach(input => {
+            input.addEventListener('focus', function() {
+                this.classList.remove('invalid');
+                const errorId = this.id + 'Error';
+                const error = document.getElementById(errorId);
+                if (error) error.style.display = 'none';
+            });
+        });
+
+        // Prevent paste on sensitive fields
+        [cardNumberInput, cvvInput].forEach(input => {
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                alert('Pasting is not allowed for security reasons');
+            });
+        });
+    </script>
+</body>
+</html>

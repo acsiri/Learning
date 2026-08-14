@@ -1,0 +1,128 @@
+VISUAL DEBUGGING IN VS CODE - QUICK GUIDE
+================================================================================
+
+FILE: ReadCardExtract.py
+STATUS: Ready for visual debugging with 6 breakpoints
+
+================================================================================
+STEP 1: SET BREAKPOINTS
+================================================================================
+
+Click on the LEFT MARGIN (gutter) next to these line numbers to add red dots:
+
+  Line 62: "print("\n[DEBUG 1] Initializing...")" 
+  Line 68: "print("\n[DEBUG 2] Checking for sample.jpg...")"
+  Line 75: "print("\n[DEBUG 3] Extracting text...")"
+  Line 80: "print("\n[DEBUG 4] Processing results...")"
+  Line 87: "print("\n[DEBUG 5] Displaying extracted...")"
+  Line 94: "print("\n[DEBUG 6] Confidence scores...")"
+
+TIP: Click to add RED DOT ●, click again to remove it
+
+================================================================================
+STEP 2: START DEBUGGING
+================================================================================
+
+Option A - Using Keyboard:
+  1. Open ReadCardExtract.py in editor
+  2. Press Ctrl+Shift+D (opens Run & Debug sidebar)
+  3. Select "Python: Current File" from dropdown
+  4. Click GREEN PLAY BUTTON ▶️
+
+Option B - Using Menu:
+  1. Click Run menu → Start Debugging
+  2. Select configuration
+  3. Debug starts
+
+================================================================================
+STEP 3: DEBUG CONTROLS
+================================================================================
+
+While debugging:
+  F10  = Step Over (next line, don't enter functions)
+  F11  = Step Into (enter functions)
+  Shift+F11 = Step Out (exit current function)
+  F5   = Continue (jump to next breakpoint)
+  Shift+F5 = Stop debugging
+
+================================================================================
+STEP 4: INSPECT VARIABLES
+================================================================================
+
+Hover over variables to see values:
+  • Hover over "result" → see dictionary contents
+  • Hover over "extractor" → see object properties
+  • Hover over "confidence" → see confidence score
+
+Use DEBUG CONSOLE at bottom:
+  Type: result
+  Type: result['full_text']
+  Type: len(result['detailed_results'])
+
+================================================================================
+STEP 5: WATCH EXPRESSIONS
+================================================================================
+
+In Debug sidebar, click WATCH section:
+  1. Click + icon
+  2. Type: result
+  3. Type: len(result['detailed_results'])
+  4. Type: result['detailed_results'][0]
+
+Watch shows values at each breakpoint!
+
+================================================================================
+QUICK KEYBOARD SHORTCUTS
+================================================================================
+
+Ctrl+Shift+D  = Open Run & Debug view
+F5            = Start/Continue debugging
+Shift+F5      = Stop debugging
+F10           = Step Over
+F11           = Step Into
+Shift+F11     = Step Out
+Ctrl+K Ctrl+C = Clear console
+
+================================================================================
+EXPECTED OUTPUT
+================================================================================
+
+When you run with breakpoints, you should see:
+
+  ✓ Extractor initialized
+  ✓ Found: sample.jpg (4610 bytes)
+  ✓ Extracted 7 text regions
+  ✓ 1234: 0.9981 confidence
+  ✓ 4560: 0.9946 confidence
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+❌ Breakpoints not working?
+  → File not saved - Press Ctrl+S
+  → Restart debugger - Shift+F5 then F5
+  → Check Python extension is installed
+
+❌ Debug console not showing?
+  → Click View → Debug Console
+  → Or press Ctrl+Shift+Y
+
+❌ Can't find Run & Debug?
+  → Click Run icon (▶️) on left sidebar
+  → Or press Ctrl+Shift+D
+
+================================================================================
+TRY IT NOW!
+================================================================================
+
+1. Open ReadCardExtract.py
+2. Click line 62 gutter to set breakpoint (red dot appears)
+3. Press Ctrl+Shift+D
+4. Select "Python: Current File"
+5. Click ▶️ button
+6. Press F10 to step through code
+7. Hover over variables to inspect
+
+Happy Debugging! 🐛
+================================================================================

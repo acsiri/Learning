@@ -1,0 +1,26 @@
+# Email Filter Rules
+# Format: key: value
+# Allowed keys:
+# - from_contains
+# - subject_contains
+# - body_contains
+# - from_regex
+# - subject_regex
+# - body_regex
+# - older_than_days
+
+# Delete emails from senders containing these words
+from_contains: noreply@
+from_contains: newsletter
+
+# Delete if subject has these words
+subject_contains: promo
+subject_contains: offer
+subject_contains: discount
+
+# Regex examples
+subject_regex: (?i)free\s+trial
+body_regex: unsubscribe
+
+# Delete emails older than N days (optional)
+# older_than_days: 90

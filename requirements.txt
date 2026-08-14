@@ -6,3 +6,8 @@ sentence-transformers>=2.2.0
 
 # Environment variable management (optional but recommended)
 python-dotenv>=1.0.0
+
+# Computer Vision and Image Processing
+opencv-python>=4.8.0
+imutils>=0.5.4
+Pillow>=10.0.0
